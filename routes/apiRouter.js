@@ -1,6 +1,6 @@
 const fs = require("fs");
-const { use } = require("./htmlRouter");
-var userInput = JSON.parse(fs.readFile("../db/db.json", utf8));
+
+var data = require("../Develop/db/db.json")
 
 module.exports = function(app) { 
     app.get("/api/notes", function(req, res) {
@@ -13,26 +13,26 @@ module.exports = function(app) {
 
     app.post("/api/notes", function(req, res){
         var newNote = req.body;
-        var id = (data.length).toString();
+        var newId = (data.length).toString();
         console.log(id);
-        newNote.id = id;
+        newNote.id = newId;
         data.push(newNote);
 
         fs.writeFile("./db/db.json", JSON.stringify(data), function(err) {
             if(err)
             throw (err);
         });
-        res.json(userInput);
+        res.json(data);
     });
 
     app.delete("/api/notes:id", function(req, res) {
         var noteId = req.params.id;
         var diffId = 0;
         console.log(`Deleted note id #: ${noteId} `);
-        userInput = userInput.filter(developNote => {
+        data = data.filter(developNote => {
             return developNote.id !=noteId;
         });
-        for (developNote of userInput){ 
+        for (developNote of data){ 
             developNote.id = diffId.toString();
             newId++;
         }
@@ -40,5 +40,5 @@ module.exports = function(app) {
         res.json(data);
     });
 
-    
+
 }
