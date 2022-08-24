@@ -1,44 +1,39 @@
 const fs = require("fs");
+const path = require('path');
 
-var data = require("../Develop/db/db.json")
+var data = require("../db/db.json")
+var uniqueId = require('uniqid');
 
-module.exports = function(app) { 
-    app.get("/api/notes", function(req, res) {
-        res.json(data);
+// Referenced: https://expressjs.com/en/guide/routing.html
+//             https://nodejs.org/api/path.html
+
+module.exports = (app) => { 
+    
+    app.get('./api/notes', (req, res) =>{ 
+        res.sendFile(path.join(__dirname, './db/db.json'));
     });
 
-    app.get("api/notes/:id", function(req, res) {
-        res.json(data[Number(req.paramas.id)]);
+    app.post('/api/notes', (req, res) => {
+        let db = fs.readFileSync('./db/db.json');
+        db = JSON.parse(db);
+        res.json(db);
+
+        let userNote = {
+            title: req.body.title, 
+            text: req.body.text,
+            id: uniqueId()
+        };
+        db.push(userNote);
+        fs.writeFileSync('./db/db.json', JSON.stringify(db));
+        res.json(db);
     });
-
-    app.post("/api/notes", function(req, res){
-        var newNote = req.body;
-        var newId = (data.length).toString();
-        console.log(id);
-        newNote.id = newId;
-        data.push(newNote);
-
-        fs.writeFile("./db/db.json", JSON.stringify(data), function(err) {
-            if(err)
-            throw (err);
-        });
-        res.json(data);
-    });
-
-    app.delete("/api/notes:id", function(req, res) {
-        var noteId = req.params.id;
-        var diffId = 0;
-        console.log(`Deleted note id #: ${noteId} `);
-        data = data.filter(developNote => {
-            return developNote.id !=noteId;
-        });
-        for (developNote of data){ 
-            developNote.id = diffId.toString();
-            newId++;
-        }
-        fs.writeFile("./db/db.json", JSON.stringify(data));
-        res.json(data);
-    });
+   
+    app.delete('/api/notes/:id', (req, res)=> {
+        let db = JSON.parse(fs.readFileSync('./db/db.json'))
+        let deleteNotes = db.filter(item => item.id !== req.params.id);
+        fs.writeFileSync('./db/db.json', JSON.stringify(deleteNotes));
+        res.json(deleteNotes);
+    })
 
 
-}
+};

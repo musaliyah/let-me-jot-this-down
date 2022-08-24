@@ -1,18 +1,19 @@
-const express = require('express');
-const router = express.Router();
-const uuid = require('../helpers/uuid');
-const path = require("path");
+const path = require('path');
 
-module.exports = function(app) {
-router.get("/notes", function(req, res){
-    res.sendFile(path.join(__dirname, "../public/notes.html"));
-
-});
-
-router.get("/*", function (req, res) {
-    res.sendFile(path.join(__dirname, "/public/index.html"));
+//Referenced: https://expressjs.com/en/guide/routing.html
+//            https://nodejs.org/api/path.html
 
 
-});
+module.exports = (app) => {
 
-}
+    app.get('/notes', (req, res) => {
+        res.sendFile(path.join(__dirname, './public/notes.html'));
+    })
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, './public/index.html'));
+
+    })
+
+};
+
